@@ -92,11 +92,6 @@
       line-height: 1.5;
       margin-bottom: 18px;
     }
-    #initialQuestion h5 {
-      font-size: 1.6rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
     .card p,
     .card h2,
     .card h3,
@@ -184,22 +179,17 @@
     <h2>The Marriage Of </h2>
     <h3>Linda Diec & Daniel Tran</h3>
     <h4>📅 30.07.2027 | 📍 MARINA BAY RESORT, VUNG TAU, VIETNAM</h4>
-    
-    <div id="initialQuestion">
-      <h5>Will you be attending?</h5>
-      <div class="btn-group">
-        <button class="yes-btn" onclick="selectAttending('Yes')">YES</button>
-        <button class="no-btn" onclick="selectAttending('No')">POLITELY NO</button>
-      </div>
-    </div>
 
-    <!-- Hidden form that reveals after clicking an option -->
-    <div id="rsvpSection" style="display:none; margin-top: 20px;">
+    <div id="rsvpSection" style="margin-top: 20px;">
       <form id="rsvpForm">
+        <label for="attendingChoice">Will you be attending?</label>
+        <select id="attendingChoice" name="attending" required>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+
         <label for="name">Full Name</label>
         <input type="text" id="name" name="name" required>
-
-        <input type="hidden" id="attending" name="attending">
 
         <label for="country">Country</label>
         <select id="country" name="country" required>
@@ -215,10 +205,10 @@
         <label for="phone">Phone Number</label>
         <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="555 123 4567">
 
-        <label for="guests">Number of Guests</label>
-        <input type="number" id="guests" name="guests" min="1" value="1">
+        <label for="guests">Number of Guests (Excluding Yourself)</label>
+        <input type="number" id="guests" name="guests" min="0" value="1">
 
-        <label for="guestNames">Name Your Guests (Full name)</label>
+        <label for="guestNames">Name Your Guests (Full Name)</label>
         <textarea id="guestNames" name="guestNames" rows="2"></textarea>
 
         <label for="notes">Notes</label>
@@ -238,13 +228,15 @@
     // 1. PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzDCXs3fmsy0oarldVkVwNfCB12RGOFUv6b9ECSWKInfLAXYq_J98vYKwyM4Wu2yR7x/exec';
 
-    const initialQuestion = document.getElementById('initialQuestion');
     const rsvpSection = document.getElementById('rsvpSection');
     const form = document.getElementById('rsvpForm');
     const statusMsg = document.getElementById('statusMessage');
     const submitBtn = document.getElementById('submitBtn');
     const countrySelect = document.getElementById('country');
     const phoneCountryCode = document.getElementById('phoneCountryCode');
+    const attendingChoice = document.getElementById('attendingChoice');
+
+    if (rsvpSection) rsvpSection.style.display = 'block';
     const countryCallingCodes = {
       'Afghanistan': '93', 'Albania': '355', 'Algeria': '213', 'Andorra': '376',
       'Angola': '244', 'Antigua and Barbuda': '1 268', 'Argentina': '54',
@@ -359,14 +351,7 @@
       phoneCountryCode.selectedIndex = countryIndex < 0 ? 0 : countryIndex + 1;
     });
 
-    // 2. Function triggered when clicking "Accept" or "Decline"
-    function selectAttending(status) {
-      initialQuestion.style.display = 'none'; // Hide initial buttons
-      rsvpSection.style.display = 'block';      // Show the details form
-      document.getElementById('attending').value = status; // Pre-select attendance choice
-    }
-
-    // 3. Form submit handler that sends the data to your Google Sheet
+    // 2. Form submit handler that sends the data to your Google Sheet
     form.addEventListener('submit', e => {
       e.preventDefault();
       submitBtn.disabled = true;
@@ -374,7 +359,7 @@
 
       const formData = {
         name: form.name.value,
-        attending: form.attending.value,
+        attending: attendingChoice.value,
         country: form.country.value,
         phoneCountryCode: form.phoneCountryCode.value,
         phone: form.phone.value
